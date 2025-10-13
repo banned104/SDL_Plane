@@ -18,18 +18,23 @@ add_executable( ${TARGET}
 
 )
 
+# 指定 SDL2_image 配置文件所在目录
+set(SDL2_image_DIR "${CMAKE_SOURCE_DIR}/libs/SDL2/cmake")
+set(SDL2_mixer_DIR "${CMAKE_SOURCE_DIR}/libs/SDL2/cmake")
+set(SDL2_ttf_DIR "${CMAKE_SOURCE_DIR}/libs/SDL2/cmake")
+
 # 查找并载入Cmake预设
 find_package(SDL2 REQUIRED)
-# find_package(SDL2_image REQUIRED)
-# find_package(SDL2_mixer REQUIRED)
-# find_package(SDL2_ttf REQUIRED)
+find_package(SDL2_image REQUIRED)
+find_package(SDL2_mixer REQUIRED)
+find_package(SDL2_ttf REQUIRED)
 
 # 链接SDL2 库到主程序中
 target_link_libraries( ${TARGET}
 	${SDL2_LIBRARIES}
-	# SDL2_image::SDL2_image
-	# SDL2_mixer::SDL2_mixer
-	# SDL2_ttf::SDL2_ttf
+	SDL2_image::SDL2_image
+	SDL2_mixer::SDL2_mixer
+	SDL2_ttf::SDL2_ttf
 )
 
 # 不要弹出控制台窗口
