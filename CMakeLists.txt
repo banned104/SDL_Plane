@@ -39,5 +39,33 @@ target_link_libraries( ${TARGET}
 
 # 不要弹出控制台窗口
 if (MSVC)
-    target_link_options(${TARGET} PRIVATE "/SUBSYSTEM:WINDOWS")
+    # target_link_options(${TARGET} PRIVATE "/SUBSYSTEM:WINDOWS")
 endif()
+
+# 获取 SDL2 库目录
+get_target_property(SDL2_DLL_PATH SDL2::SDL2 IMPORTED_LOCATION)
+get_filename_component(SDL2_LIB_DIR ${SDL2_DLL_PATH} DIRECTORY)
+    
+# 输出时复制dll
+    # 复制 SDL2 相关 DLL
+    add_custom_command(TARGET ${TARGET} POST_BUILD
+        # CMake命令 当文件不同时才复制
+        # copy_if_different 用于复制单个文件
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${SDL2_LIB_DIR}/SDL2.dll"
+        "${SDL2_LIB_DIR}/SDL2_image.dll"
+        "${SDL2_LIB_DIR}/SDL2_mixer.dll"
+        "${SDL2_LIB_DIR}/SDL2_ttf.dll"
+        # 目标目录：$<TARGET_FILE_DIR:${TARGET}>，表示可执行文件所在的输出目录（如 out/build/x64-Debug/）。
+        $<TARGET_FILE_DIR:${TARGET}>
+    )
+
+    # TARGET ${TARGET} POST_BUILD 意思是 在目标 {TARGET} 构建完成后执行命令
+    add_custom_command(TARGET ${TARGET} POST_BUILD
+        # CMake命令 复制整个目录
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        # 源目录
+        "${CMAKE_SOURCE_DIR}/assets"
+        # 目标目录（复制到输出目录下的 assets 子目录）
+        "$<TARGET_FILE_DIR:${TARGET}>/assets"
+    )

@@ -1,7 +1,17 @@
 #include <iostream>
-#include "SDL.h"
 #include <memory>
+
+#include "SDL.h"
+#include "SDL_image.h"
+
 void RenderLoop(SDL_Renderer* render);
+void InitializeAxiliaries(SDL_Renderer* render);
+void RenderImages(SDL_Renderer* render);
+void DestroyAll(SDL_Renderer* render, SDL_Window* window);
+
+
+SDL_Texture* texture;
+
 
 /*
 * SDL2 要求 main 必须是 int main(int argc, char* argv[]) 这种签名
@@ -14,18 +24,43 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 	// 创建窗口
-	
 	SDL_Window* window = SDL_CreateWindow("Game Window", 200, 200, 800, 600, SDL_WINDOW_SHOWN);
 	// 创建渲染器
 	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	
-	RenderLoop( renderer );
+	// 加载其他库
+	InitializeAxiliaries(renderer);
 
-	// 结束
-	SDL_DestroyWindow(window);
-	SDL_Quit();
+	RenderLoop( renderer );
+	DestroyAll(renderer, window);
 	return 0;
 }
+
+
+void InitializeAxiliaries(SDL_Renderer* render) {
+	/* 初始化图像加载库 指定 JPG/PNG */
+	if (IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG) 
+		!= (IMG_INIT_PNG | IMG_INIT_JPG)) 
+	{
+		std::cerr << "Img init failed" << IMG_GetError() << std::endl;
+		return;
+	}
+
+	texture = IMG_LoadTexture(render, "assets/assets/image/bg.png");
+
+}
+
+void DestroyAll( SDL_Renderer* render, SDL_Window* window ) {
+	SDL_DestroyTexture(texture);
+	SDL_DestroyRenderer(render);
+	// 结束
+	SDL_DestroyWindow(window);
+	IMG_Quit();
+	SDL_Quit();
+}
+
+
+
 
 void RenderLoop( SDL_Renderer* render ) {
 	while (true) {
@@ -42,7 +77,19 @@ void RenderLoop( SDL_Renderer* render ) {
 		SDL_RenderFillRect(render, &rect);
 		SDL_SetRenderDrawColor(render, 255, 255, 255, 255);
 
+		RenderImages(render);
+
 		SDL_RenderPresent(render);
 	}
-	SDL_DestroyRenderer(render);
+	
+}
+
+void RenderImages( SDL_Renderer* render ) {
+	//F:\Codes\Games\SDL_Aircraft\assets\assets\image\bg.png
+	if( !texture ) { 
+		std::cerr << "Load image failed " << std::endl;
+	}
+	SDL_Rect rect = { 200, 200, 200, 200 };
+	SDL_RenderCopy(render, texture, NULL, &rect);
+	
 }
