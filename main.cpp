@@ -3,6 +3,8 @@
 
 #include "SDL.h"
 #include "SDL_image.h"
+#include "SDL_mixer.h"
+#include "SDL_ttf.h"
 
 void RenderLoop(SDL_Renderer* render);
 void InitializeAxiliaries(SDL_Renderer* render);
@@ -11,10 +13,21 @@ void DestroyAll(SDL_Renderer* render, SDL_Window* window);
 
 
 SDL_Texture* texture;
+Mix_Music* music;
+TTF_Font* font;
+SDL_Surface* textSurface;
+SDL_Texture* textTexture;
 
+enum GameState
+{
+	TITLE_SCREEN,
+	PLAYING,
+	PAUSED,
+	GAME_OVER,
+};
 
 /*
-* SDL2 ÒªÇó main ±ØĞëÊÇ int main(int argc, char* argv[]) ÕâÖÖÇ©Ãû
+* SDL2 è¦æ±‚ main å¿…é¡»æ˜¯ int main(int argc, char* argv[]) è¿™ç§ç­¾å
 */
 int main(int argc, char* argv[]) {
 	std::cout << "Hello plane" << std::endl;
@@ -23,40 +36,61 @@ int main(int argc, char* argv[]) {
 		std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
 		return 1;
 	}
-	// ´´½¨´°¿Ú
+	// åˆ›å»ºçª—å£
 	SDL_Window* window = SDL_CreateWindow("Game Window", 200, 200, 800, 600, SDL_WINDOW_SHOWN);
-	// ´´½¨äÖÈ¾Æ÷
+	// åˆ›å»ºæ¸²æŸ“å™¨
 	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	
-	// ¼ÓÔØÆäËû¿â
+	// åŠ è½½å…¶ä»–åº“
 	InitializeAxiliaries(renderer);
 
 	RenderLoop( renderer );
+
 	DestroyAll(renderer, window);
 	return 0;
 }
 
 
 void InitializeAxiliaries(SDL_Renderer* render) {
-	/* ³õÊ¼»¯Í¼Ïñ¼ÓÔØ¿â Ö¸¶¨ JPG/PNG */
+	/*------------------------------------------------------------------------*/
+	/* åˆå§‹åŒ–å›¾åƒåŠ è½½åº“ æŒ‡å®š JPG/PNG */
 	if (IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG) 
 		!= (IMG_INIT_PNG | IMG_INIT_JPG)) 
 	{
 		std::cerr << "Img init failed" << IMG_GetError() << std::endl;
 		return;
 	}
-
 	texture = IMG_LoadTexture(render, "assets/assets/image/bg.png");
-
+	/*------------------------------------------------------------------------*/
+	// 44100Hz CDéŸ³è´¨; éŸ³é¢‘æ ¼å¼é»˜è®¤; å£°é“æ•°é‡ 2 åŒå£°é“ç«‹ä½“å£°; ç¼“å†²åŒºå¤§å° 2048 Bytes;
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+		std::cerr << "Mix_OpenAudio Init Error" << Mix_GetError() << std::endl;
+		return;
+	}
+	music = Mix_LoadMUS("assets/assets/music/03_Racing_Through_Asteroids_Loop.ogg");
+	// ç¬¬äºŒä¸ªå‚æ•°æ˜¯å¾ªç¯æ¬¡æ•° -1 è¡¨ç¤ºæ— é™å¾ªç¯
+	Mix_PlayMusic(music, -1);
+	/*------------------------------------------------------------------------*/
+	if (TTF_Init() != 0) {
+		std::cerr << "TTF Init Error" << TTF_GetError() << std::endl;
+		return;
+	}
+	// F:\Codes\Games\SDL_Aircraft\assets\assets\font\VonwaonBitmap-16px.ttf
+	font = TTF_OpenFont("assets/assets/font/VonwaonBitmap-16px.ttf", 24);
+	SDL_Color color = { 0, 0, 255, 255 };
+	textSurface = TTF_RenderUTF8_Solid(font, "Hello Niko, Hide, é«˜ä¸¾åŒé’³", color);
+	textTexture = SDL_CreateTextureFromSurface(render, textSurface);
+	/*------------------------------------------------------------------------*/
 }
 
 void DestroyAll( SDL_Renderer* render, SDL_Window* window ) {
 	SDL_DestroyTexture(texture);
 	SDL_DestroyRenderer(render);
-	// ½áÊø
+	// ç»“æŸ
 	SDL_DestroyWindow(window);
 	IMG_Quit();
 	SDL_Quit();
+	Mix_Quit();
 }
 
 
@@ -69,9 +103,9 @@ void RenderLoop( SDL_Renderer* render ) {
 			if (event.type == SDL_QUIT) { std::cout<<"Quit!"<<std::endl; break; }
 		}
 
-		// ÇåÆÁ
+		// æ¸…å±
 		SDL_RenderClear(render);
-		// »æÍ¼
+		// ç»˜å›¾
 		SDL_Rect rect = { 100, 100, 200, 200 };
 		SDL_SetRenderDrawColor(render, 122, 20, 88, 255);
 		SDL_RenderFillRect(render, &rect);
@@ -91,5 +125,6 @@ void RenderImages( SDL_Renderer* render ) {
 	}
 	SDL_Rect rect = { 200, 200, 200, 200 };
 	SDL_RenderCopy(render, texture, NULL, &rect);
-	
+	SDL_Rect textRect = { 300, 300, textSurface->w, textSurface->h };
+	SDL_RenderCopy(render, textTexture, NULL, &textRect);
 }

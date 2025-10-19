@@ -7,6 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(TARGET SDL_Plane)
 set( SDL2_LIBRARIES SDL2::SDL2 SDL2::SDL2::SDL2main )
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # 指定 SDL2 SDL2Config.cmake 所在目录
 set( SDL2_DIR "${CMAKE_SOURCE_DIR}/libs/SDL2/cmake" )
 # 查找并导入SDL2
@@ -16,7 +18,11 @@ find_package( SDL2 CONFIG REQUIRED )
 add_executable( ${TARGET}
 	main.cpp 
 
+    "Game/Game.cpp"
+    "Game/Scene.cpp" 
+    "Game/SceneMain.cpp"
 )
+include_directories( "${CMAKE_SOURCE_DIR}/Game/" )
 
 # 指定 SDL2_image 配置文件所在目录
 set(SDL2_image_DIR "${CMAKE_SOURCE_DIR}/libs/SDL2/cmake")
