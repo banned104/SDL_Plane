@@ -103,7 +103,7 @@ void Game::DestroyAll( SDL_Renderer* render, SDL_Window* window ) {
 
 
 
-void Game::RenderLoop( SDL_Renderer* render ) {
+void Game::RenderLoop() {
 	while (true) {
 		SDL_Event event;
 		if (SDL_PollEvent(&event)) {
@@ -111,16 +111,16 @@ void Game::RenderLoop( SDL_Renderer* render ) {
 		}
 
 		// 清屏
-		SDL_RenderClear(render);
+		SDL_RenderClear(renderer);
 		// 绘图
 		SDL_Rect rect = { 100, 100, 200, 200 };
-		SDL_SetRenderDrawColor(render, 122, 20, 88, 255);
-		SDL_RenderFillRect(render, &rect);
-		SDL_SetRenderDrawColor(render, 255, 255, 255, 255);
+		SDL_SetRenderDrawColor(renderer, 122, 20, 88, 255);
+		SDL_RenderFillRect(renderer, &rect);
+		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
-		RenderImages(render);
+		RenderImages(renderer);
 
-		SDL_RenderPresent(render);
+		SDL_RenderPresent(renderer);
 	}
 	
 }

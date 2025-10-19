@@ -24,7 +24,7 @@ public:
     void init();
     void clean();
     void changeScreen(Scene* scene);
-    void RenderLoop(SDL_Renderer* render);
+    void RenderLoop();
     void InitializeAxiliaries(SDL_Renderer* render);
     void RenderImages(SDL_Renderer* render);
     void DestroyAll(SDL_Renderer* render, SDL_Window* window);

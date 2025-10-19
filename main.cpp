@@ -8,6 +8,8 @@
 int main(int argc, char* argv[]) {
     std::unique_ptr<Game> GameInstance = std::make_unique<Game>();
     GameInstance.get()->init();
+    GameInstance.get()->RenderLoop();
+    GameInstance->clean();
 	return 0;
 }
 
